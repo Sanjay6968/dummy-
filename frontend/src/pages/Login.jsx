@@ -1,63 +1,70 @@
-import { useState, useContext } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
 import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
 
 import { AuthContext } from "../context/AuthContext";
 
-function Login() {
-
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+const Login = () => {
 
     const { login } = useContext(AuthContext);
 
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async (e) => {
 
         e.preventDefault();
+
+        setError("");
+        setLoading(true);
 
         try {
 
             const response = await axios.post(
-                "http://localhost:5000/api/auth/login",
+                `${import.meta.env.VITE_API_URL}/auth/login`,
                 {
                     email,
                     password
                 }
             );
 
-            // Store JWT
             login(response.data.token);
 
-            // Go to dashboard
             navigate("/dashboard");
 
         } catch (error) {
 
-            alert(
+            setError(
                 error.response?.data?.message ||
                 "Login failed"
             );
+
+        } finally {
+
+            setLoading(false);
         }
     };
 
     return (
         <div className="auth-container">
 
-            <div className="card">
+            <div className="auth-box">
 
-                <h1>Task Manager</h1>
+                <h1>Login</h1>
 
-                <h2>Login</h2>
-
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleLogin}>
 
                     <input
                         type="email"
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        required
                     />
 
                     <input
@@ -65,13 +72,20 @@ function Login() {
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        required
                     />
 
-                    <button type="submit">
-                        Login
+                    <button type="submit" disabled={loading}>
+                        {loading ? "Logging in..." : "Login"}
                     </button>
 
                 </form>
+
+                {error && (
+                    <p className="error">
+                        {error}
+                    </p>
+                )}
 
                 <p>
                     Don't have an account?{" "}
@@ -84,6 +98,6 @@ function Login() {
 
         </div>
     );
-}
+};
 
 export default Login;
