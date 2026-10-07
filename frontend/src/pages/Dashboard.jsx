@@ -26,8 +26,8 @@ const Dashboard = () => {
     const fetchTasks = async () => {
         try {
 
-            const response = await axios.get(
-                `${import.meta.env.VITE_API_URL}/tasks`,
+            const response = await axios.post(
+    `${import.meta.env.VITE_API_URL}/auth/register`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
